@@ -16,10 +16,10 @@
             self.screenVertexPositionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexPositionBuffer);
             vertices = [
-               0.580687, 0.659, 0.813106,
-              -0.580687, 0.659, 0.813107,
-               0.580687, 0.472, 0.113121,
-              -0.580687, 0.472, 0.113121,
+                0.580687, 0.659, 0.813106,
+               -0.580687, 0.659, 0.813107,
+                0.580687, 0.472, 0.113121,
+               -0.580687, 0.472, 0.113121,
             ];
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
             self.screenVertexPositionBuffer.itemSize = 3;
@@ -28,10 +28,10 @@
             self.screenVertexNormalBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexNormalBuffer);
             var vertexNormals = [
-              0.000000, -0.965926, 0.258819,
-              0.000000, -0.965926, 0.258819,
-              0.000000, -0.965926, 0.258819,
-              0.000000, -0.965926, 0.258819,
+                0.000000, -0.965926, 0.258819,
+                0.000000, -0.965926, 0.258819,
+                0.000000, -0.965926, 0.258819,
+                0.000000, -0.965926, 0.258819,
             ];
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
             self.screenVertexNormalBuffer.itemSize = 3;
@@ -40,10 +40,10 @@
             self.screenVertexTextureCoordBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexTextureCoordBuffer);
             var textureCoords = [
-              1.0, 1.0,
-              0.0, 1.0,
-              1.0, 0.0,
-              0.0, 0.0,
+                1.0, 1.0,
+                0.0, 1.0,
+                1.0, 0.0,
+                0.0, 0.0,
             ];
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
             self.screenVertexTextureCoordBuffer.itemSize = 2;
@@ -86,8 +86,8 @@
             }
             gl.useProgram(shaderProgram.program);
 
-            mat4.translate(matrices.mv, [0, -0.4, -2.2]);
-            mat4.rotate(matrices.mv, -90, [1, 0, 0]);
+            mat4.translate(matrices.mv, [0, -0.4, 2]);
+            mat4.rotate(matrices.mv, -(Math.PI / 2), [1, 0, 0]);
 
             gl.uniform1i(shaderProgram.showSpecularHighlightsUniform, true);
             gl.uniform3f(shaderProgram.pointLightingLocationUniform, -1, 2, -1);
@@ -105,14 +105,20 @@
             gl.uniform1i(shaderProgram.useTexturesUniform, false);
 
             if (self.vertexPositionBuffer) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
-                gl.vertexAttribPointer(shaderProgram.attributes.vertexPosition, self.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                if ('vertexPosition' in shaderProgram.attributes) {
+                    gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
+                    gl.vertexAttribPointer(shaderProgram.attributes.vertexPosition, self.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                }
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexTextureCoordBuffer);
-                gl.vertexAttribPointer(shaderProgram.attributes.textureCoord, self.vertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                if ('textureCoord' in shaderProgram.attributes) {
+                    gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexTextureCoordBuffer);
+                    gl.vertexAttribPointer(shaderProgram.attributes.textureCoord, self.vertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                }
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexNormalBuffer);
-                gl.vertexAttribPointer(shaderProgram.attributes.vertexNormal, self.vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                if ('vertexNormal' in shaderProgram.attributes) {
+                    gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexNormalBuffer);
+                    gl.vertexAttribPointer(shaderProgram.attributes.vertexNormal, self.vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                }
 
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.vertexIndexBuffer);
                 shaderProgram.setMatrices(matrices);
@@ -126,14 +132,20 @@
             gl.uniform3f(shaderProgram.materialEmissiveColorUniform, 1.5, 1.5, 1.5);
             gl.uniform1i(shaderProgram.useTexturesUniform, true);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexPositionBuffer);
-            gl.vertexAttribPointer(shaderProgram.attributes.vertexPosition, self.screenVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            if ('vertexPosition' in shaderProgram.attributes) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexPositionBuffer);
+                gl.vertexAttribPointer(shaderProgram.attributes.vertexPosition, self.screenVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            }
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexNormalBuffer);
-            gl.vertexAttribPointer(shaderProgram.attributes.vertexNormal, self.screenVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            if ('vertexNormal' in shaderProgram.attributes) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexNormalBuffer);
+                gl.vertexAttribPointer(shaderProgram.attributes.vertexNormal, self.screenVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            }
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexTextureCoordBuffer);
-            gl.vertexAttribPointer(shaderProgram.attributes.textureCoord, self.screenVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            if ('textureCoord' in shaderProgram.attributes) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexTextureCoordBuffer);
+                gl.vertexAttribPointer(shaderProgram.attributes.textureCoord, self.screenVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            }
 
             gl.activeTexture(gl.TEXTURE0);
             gl.uniform1i(shaderProgram.samplerUniform, 0);
