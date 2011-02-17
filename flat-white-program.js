@@ -27,8 +27,6 @@
                 alert("Could not initialise shaders");
             }
 
-            gl.useProgram(program);
-
             self.attributes = {
                 vertexPosition: gl.getAttribLocation(program, "aVertexPosition")
             };

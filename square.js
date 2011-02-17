@@ -27,6 +27,8 @@
 
 
         self.draw = function(matrices) {
+            gl.useProgram(shaderProgram.program);
+
             matrices.pushMV();
             mat4.translate(matrices.mv, [1.5, 0.0, 0.0]);
             gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
