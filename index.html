@@ -4,8 +4,13 @@
 <title>Project Dirigible: parallel spreadsheet execution with run_worksheet</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
-<script type="text/javascript" src="webgl-utils.js"></script>
+<!-- External libraries -->
 <script type="text/javascript" src="glMatrix-0.9.4.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+
+<!-- Internal libraries -->
+<script type="text/javascript" src="matrices.js"></script>
 
 <script id="shader-fs" type="x-shader/x-fragment">
 #ifdef GL_ES
@@ -99,15 +104,6 @@ function initShaders() {
 }
 
 
-var mvMatrix;
-var pMatrix;
-
-function setMatrixUniforms() {
-    gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-    gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
-}
-
-
 
 var triangleVertexPositionBuffer;
 var squareVertexPositionBuffer;
@@ -143,23 +139,21 @@ function render() {
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    pMatrix = mat4.create();
-    mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+    matrices = new DirigibleDemo.Matrices();
+    mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, matrices.p);
+    mat4.identity(matrices.mv);
 
-    mvMatrix = mat4.create();
-    mat4.identity(mvMatrix);
-
-    mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
+    mat4.translate(matrices.mv, [-1.5, 0.0, -7.0]);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    setMatrixUniforms();
+    matrices.setUniforms(shaderProgram);
     gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
 
-    mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
+    mat4.translate(matrices.mv, [3.0, 0.0, 0.0]);
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    setMatrixUniforms();
+    matrices.setUniforms(shaderProgram);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
 
     WebGLUtils.requestAnimationFrame(canvas, render);
