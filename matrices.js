@@ -13,10 +13,26 @@
         self.p = mat4.create();
         self.mv = mat4.create();
 
+        var mvStack = [];
 
         self.setUniforms = function(shaderProgram) {
             gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, self.p);
             gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, self.mv);
+        }
+
+
+        self.pushMV = function() {
+            var copy = mat4.create();
+            mat4.set(self.mv, copy);
+            mvStack.push(copy);
+        }
+
+
+        self.popMV = function() {
+            if (mvStack.length == 0) {
+              throw "Invalid popMatrix!";
+            }
+            self.mv = mvStack.pop();
         }
 
     }

@@ -11,6 +11,7 @@
 
 <!-- Internal libraries -->
 <script type="text/javascript" src="matrices.js"></script>
+<script type="text/javascript" src="triangle.js"></script>
 
 <script id="shader-fs" type="x-shader/x-fragment">
 #ifdef GL_ES
@@ -105,20 +106,8 @@ function initShaders() {
 
 
 
-var triangleVertexPositionBuffer;
 var squareVertexPositionBuffer;
 function initBuffers() {
-    triangleVertexPositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-    var vertices = [
-         0.0,  1.0,  0.0,
-        -1.0, -1.0,  0.0,
-         1.0, -1.0,  0.0
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    triangleVertexPositionBuffer.itemSize = 3;
-    triangleVertexPositionBuffer.numItems = 3;
-
     squareVertexPositionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
     vertices = [
@@ -143,18 +132,17 @@ function render() {
     mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, matrices.p);
     mat4.identity(matrices.mv);
 
-    mat4.translate(matrices.mv, [-1.5, 0.0, -7.0]);
+    mat4.translate(matrices.mv, [0.0, 0.0, -7.0]);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    matrices.setUniforms(shaderProgram);
-    gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
+    triangle.draw(gl, matrices, shaderProgram);
 
-    mat4.translate(matrices.mv, [3.0, 0.0, 0.0]);
+    matrices.pushMV();
+    mat4.translate(matrices.mv, [1.5, 0.0, 0.0]);
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
     matrices.setUniforms(shaderProgram);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+    matrices.popMV();
 
     WebGLUtils.requestAnimationFrame(canvas, render);
 }
@@ -166,6 +154,9 @@ function webGLStart() {
     initGL(canvas);
     initShaders();
     initBuffers();
+
+    triangle = new DirigibleDemo.Triangle(gl);
+
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
