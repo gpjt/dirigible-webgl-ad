@@ -53,7 +53,9 @@ $(function() {
         mat4.translate(matrices.mv, [0.0, 0.0, -7.0]);
 
         for (index in worldObjects) {
+            matrices.pushMV();
             worldObjects[index].draw(matrices);
+            matrices.popMV();
         }
 
         WebGLUtils.requestAnimationFrame(canvas, render);
