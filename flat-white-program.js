@@ -6,6 +6,37 @@
         }
     });
 
+
+    function Shader(gl, url, type, onLoadCallback) {
+        var self = this;
+
+        $.ajax({
+            url: url,
+            dataType: "text",
+            statusCode: {
+                200: onLoad,
+                0: onLoad
+            }
+        });
+
+
+        function onLoad(data) {
+            var shader = gl.createShader(type);
+
+            gl.shaderSource(shader, data.responseText);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert(gl.getShaderInfoLog(shader));
+                return;
+            }
+
+            self.shader = shader;
+            onLoadCallback();
+        }
+    }
+
+
     function FlatWhiteProgram(gl) {
         var self = this;
 
@@ -15,62 +46,17 @@
         initShaders();
 
         function initShaders() {
-            var vertexShader;
-            function loadVertexShader(data) {
-                var shader = gl.createShader(gl.VERTEX_SHADER);
-
-                gl.shaderSource(shader, data.responseText);
-                gl.compileShader(shader);
-
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    alert(gl.getShaderInfoLog(shader));
-                    return;
-                }
-
-                vertexShader = shader;
-                linkProgramIfPossible();
-            }
-            $.ajax({
-                url: "flat-white-program.vs",
-                dataType: "text",
-                statusCode: {
-                    200: loadVertexShader,
-                    0: loadVertexShader
-                }
-            });
-
-            var fragmentShader;
-            function loadFragmentShader(data) {
-                var shader = gl.createShader(gl.FRAGMENT_SHADER);
-
-                gl.shaderSource(shader, data.responseText);
-                gl.compileShader(shader);
-
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    alert(gl.getShaderInfoLog(shader));
-                    return;
-                }
-
-                fragmentShader = shader;
-                linkProgramIfPossible();
-            }
-            $.ajax({
-                url: "flat-white-program.fs",
-                dataType: "text",
-                statusCode: {
-                    200: loadFragmentShader,
-                    0: loadFragmentShader
-                }
-            });
+            var vertexShader = new Shader(gl, "flat-white-program.vs", gl.VERTEX_SHADER, linkProgramIfPossible);
+            var fragmentShader = new Shader(gl, "flat-white-program.fs", gl.FRAGMENT_SHADER, linkProgramIfPossible);
 
             function linkProgramIfPossible() {
-                if (!vertexShader || !fragmentShader) {
+                if (!vertexShader.shader || !fragmentShader.shader) {
                     return;
                 }
 
                 var program = gl.createProgram();
-                gl.attachShader(program, vertexShader);
-                gl.attachShader(program, fragmentShader);
+                gl.attachShader(program, vertexShader.shader);
+                gl.attachShader(program, fragmentShader.shader);
                 gl.linkProgram(program);
 
                 if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
@@ -87,42 +73,6 @@
 
                 self.program = program;
             }
-        }
-
-
-        function getShader(gl, id) {
-            var shaderScript = document.getElementById(id);
-            if (!shaderScript) {
-                return null;
-            }
-
-            var str = "";
-            var k = shaderScript.firstChild;
-            while (k) {
-                if (k.nodeType == 3) {
-                    str += k.textContent;
-                }
-                k = k.nextSibling;
-            }
-
-            var shader;
-            if (shaderScript.type == "x-shader/x-fragment") {
-                shader = gl.createShader(gl.FRAGMENT_SHADER);
-            } else if (shaderScript.type == "x-shader/x-vertex") {
-                shader = gl.createShader(gl.VERTEX_SHADER);
-            } else {
-                return null;
-            }
-
-            gl.shaderSource(shader, str);
-            gl.compileShader(shader);
-
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                alert(gl.getShaderInfoLog(shader));
-                return null;
-            }
-
-            return shader;
         }
 
 
