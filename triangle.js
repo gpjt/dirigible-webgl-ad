@@ -26,6 +26,9 @@
 
 
         self.draw = function(matrices) {
+            if (!shaderProgram.program) {
+                return;
+            }
             gl.useProgram(shaderProgram.program);
 
             matrices.pushMV();
