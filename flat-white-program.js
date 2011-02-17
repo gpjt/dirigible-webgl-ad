@@ -10,15 +10,7 @@
     function Shader(gl, url, type, onLoadCallback) {
         var self = this;
 
-        $.ajax({
-            url: url,
-            dataType: "text",
-            statusCode: {
-                200: onLoad,
-                0: onLoad
-            }
-        });
-
+        DirigibleDemo.AjaxUtils.FileSystemSafeGet(url, "text", onLoad);
 
         function onLoad(data) {
             var shader = gl.createShader(type);
