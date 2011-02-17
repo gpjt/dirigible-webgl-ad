@@ -120,21 +120,23 @@ function render() {
 
     mat4.translate(matrices.mv, [0.0, 0.0, -7.0]);
 
-    triangle.draw(gl, matrices, shaderProgram);
-    square.draw(gl, matrices, shaderProgram);
+    for (index in worldObjects) {
+        worldObjects[index].draw(gl, matrices, shaderProgram);
+    }
 
     WebGLUtils.requestAnimationFrame(canvas, render);
 }
 
 
+var worldObjects = [];
 
 function webGLStart() {
     canvas = document.getElementById("webgl-canvas");
     initGL(canvas);
     initShaders();
 
-    triangle = new DirigibleDemo.Triangle(gl);
-    square = new DirigibleDemo.Square(gl);
+    worldObjects.push(new DirigibleDemo.Triangle(gl));
+    worldObjects.push(new DirigibleDemo.Square(gl));
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
