@@ -29,8 +29,10 @@
 
             gl.useProgram(program);
 
-            program.vertexPositionAttribute = gl.getAttribLocation(program, "aVertexPosition");
-            gl.enableVertexAttribArray(program.vertexPositionAttribute);
+            self.attributes = {
+                vertexPosition: gl.getAttribLocation(program, "aVertexPosition")
+            };
+            gl.enableVertexAttribArray(self.attributes.vertexPosition);
 
             pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
             mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
