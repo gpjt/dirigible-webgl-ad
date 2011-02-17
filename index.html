@@ -12,6 +12,7 @@
 <!-- Internal libraries -->
 <script type="text/javascript" src="ajax-utils.js"></script>
 <script type="text/javascript" src="flat-white-program.js"></script>
+<script type="text/javascript" src="laptop.js"></script>
 <script type="text/javascript" src="matrices.js"></script>
 <script type="text/javascript" src="square.js"></script>
 <script type="text/javascript" src="triangle.js"></script>
@@ -28,6 +29,8 @@ $(function() {
     var worldObjects = [];
     worldObjects.push(new DirigibleDemo.Triangle(gl, flatWhiteProgram));
     worldObjects.push(new DirigibleDemo.Square(gl, flatWhiteProgram));
+
+    new DirigibleDemo.Laptop(gl, flatWhiteProgram);
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 

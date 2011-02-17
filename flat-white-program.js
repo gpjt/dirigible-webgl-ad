@@ -12,10 +12,10 @@
 
         DirigibleDemo.AjaxUtils.FileSystemSafeGet(url, "text", onLoad);
 
-        function onLoad(data) {
+        function onLoad(source) {
             var shader = gl.createShader(type);
 
-            gl.shaderSource(shader, data.responseText);
+            gl.shaderSource(shader, source);
             gl.compileShader(shader);
 
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
