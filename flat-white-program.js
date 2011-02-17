@@ -9,6 +9,9 @@
     function FlatWhiteProgram(gl) {
         var self = this;
 
+        var pMatrixUniform;
+        var mvMatrixUniform;
+
         initShaders();
 
         function initShaders() {
@@ -29,8 +32,8 @@
             program.vertexPositionAttribute = gl.getAttribLocation(program, "aVertexPosition");
             gl.enableVertexAttribArray(program.vertexPositionAttribute);
 
-            program.pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
-            program.mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
+            pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
+            mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
 
             self.program = program;
         }
@@ -73,8 +76,8 @@
 
 
         self.setMatrices = function(matrices) {
-            gl.uniformMatrix4fv(self.program.pMatrixUniform, false, matrices.p);
-            gl.uniformMatrix4fv(self.program.mvMatrixUniform, false, matrices.mv);
+            gl.uniformMatrix4fv(pMatrixUniform, false, matrices.p);
+            gl.uniformMatrix4fv(mvMatrixUniform, false, matrices.mv);
         };
 
     }
