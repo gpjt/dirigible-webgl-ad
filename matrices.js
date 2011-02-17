@@ -15,12 +15,6 @@
 
         var mvStack = [];
 
-        self.setUniforms = function(gl, shaderProgram) {
-            gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, self.p);
-            gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, self.mv);
-        }
-
-
         self.pushMV = function() {
             var copy = mat4.create();
             mat4.set(self.mv, copy);

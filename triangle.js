@@ -30,7 +30,7 @@
             mat4.translate(matrices.mv, [-1.5, 0.0, 0.0]);
             gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
             gl.vertexAttribPointer(shaderProgram.program.vertexPositionAttribute, self.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-            matrices.setUniforms(gl, shaderProgram.program);
+            shaderProgram.setMatrices(matrices);
             gl.drawArrays(gl.TRIANGLES, 0, self.vertexPositionBuffer.numItems);
             matrices.popMV();
         };

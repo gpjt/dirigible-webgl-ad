@@ -71,6 +71,12 @@
             return shader;
         }
 
+
+        self.setMatrices = function(matrices) {
+            gl.uniformMatrix4fv(self.program.pMatrixUniform, false, matrices.p);
+            gl.uniformMatrix4fv(self.program.mvMatrixUniform, false, matrices.mv);
+        };
+
     }
 
 
