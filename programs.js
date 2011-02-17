@@ -2,9 +2,16 @@
     // register namespace
     $.extend(true, window, {
         "DirigibleDemo": {
-            "FlatWhiteProgram": FlatWhiteProgram
+            "Programs": {
+                "FlatWhite": FlatWhite
+            }
         }
     });
+
+
+    function FlatWhite(gl) {
+        return new Program(gl, "flat-white-program.vs", "flat-white-program.fs");
+    }
 
 
     function Shader(gl, url, type, onLoadCallback) {
@@ -29,7 +36,7 @@
     }
 
 
-    function FlatWhiteProgram(gl) {
+    function Program(gl, vsURL, fsURL) {
         var self = this;
 
         var pMatrixUniform;
@@ -38,8 +45,8 @@
         initShaders();
 
         function initShaders() {
-            var vertexShader = new Shader(gl, "flat-white-program.vs", gl.VERTEX_SHADER, linkProgramIfPossible);
-            var fragmentShader = new Shader(gl, "flat-white-program.fs", gl.FRAGMENT_SHADER, linkProgramIfPossible);
+            var vertexShader = new Shader(gl, vsURL, gl.VERTEX_SHADER, linkProgramIfPossible);
+            var fragmentShader = new Shader(gl, fsURL, gl.FRAGMENT_SHADER, linkProgramIfPossible);
 
             function linkProgramIfPossible() {
                 if (!vertexShader.shader || !fragmentShader.shader) {
