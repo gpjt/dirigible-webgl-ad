@@ -7,7 +7,7 @@
     });
 
 
-    function Laptop(gl) {
+    function Laptop(gl, shaderProgram) {
         var self = this;
 
         init();
@@ -80,10 +80,9 @@
         }
 
 
-        function draw() {
-            mvTranslate([0, -0.4, -2.2]);
-            mvRotate(laptopAngle, [0, 1, 0]);
-            mvRotate(-90, [1, 0, 0]);
+        self.draw = function(matrices) {
+            mat4.translate(matrices.mv, [0, -0.4, -2.2]);
+            mat4.rotate(matrices.mv, -90, [1, 0, 0]);
 
             gl.uniform1i(shaderProgram.showSpecularHighlightsUniform, true);
             gl.uniform3f(shaderProgram.pointLightingLocationUniform, -1, 2, -1);
@@ -100,19 +99,19 @@
             gl.uniform3f(shaderProgram.materialEmissiveColorUniform, 0.0, 0.0, 0.0);
             gl.uniform1i(shaderProgram.useTexturesUniform, false);
 
-            if (laptopVertexPositionBuffer) {
-              gl.bindBuffer(gl.ARRAY_BUFFER, laptopVertexPositionBuffer);
-              gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, laptopVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            if (self.vertexPositionBuffer) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, self.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-              gl.bindBuffer(gl.ARRAY_BUFFER, laptopVertexTextureCoordBuffer);
-              gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, laptopVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexTextureCoordBuffer);
+                gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, self.vertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-              gl.bindBuffer(gl.ARRAY_BUFFER, laptopVertexNormalBuffer);
-              gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, laptopVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexNormalBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, self.vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-              gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, laptopVertexIndexBuffer);
-              setMatrixUniforms();
-              gl.drawElements(gl.TRIANGLES, laptopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.vertexIndexBuffer);
+                shaderProgram.setMatrices(matrices);
+                gl.drawElements(gl.TRIANGLES, self.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
             }
 
             gl.uniform3f(shaderProgram.materialAmbientColorUniform, 0.0, 0.0, 0.0);
@@ -122,21 +121,20 @@
             gl.uniform3f(shaderProgram.materialEmissiveColorUniform, 1.5, 1.5, 1.5);
             gl.uniform1i(shaderProgram.useTexturesUniform, true);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, laptopScreenVertexPositionBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, laptopScreenVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexPositionBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, self.screenVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, laptopScreenVertexNormalBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, laptopScreenVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexNormalBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, self.screenVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, laptopScreenVertexTextureCoordBuffer);
-            gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, laptopScreenVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexTextureCoordBuffer);
+            gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, self.screenVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
             gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, rttTexture);
             gl.uniform1i(shaderProgram.samplerUniform, 0);
 
-            setMatrixUniforms();
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, laptopScreenVertexPositionBuffer.numItems);
+            shaderProgram.setMatrices(matrices);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, self.screenVertexPositionBuffer.numItems);
         }
 
     }

@@ -29,8 +29,7 @@ $(function() {
     var worldObjects = [];
     worldObjects.push(new DirigibleDemo.Triangle(gl, flatWhiteProgram));
     worldObjects.push(new DirigibleDemo.Square(gl, flatWhiteProgram));
-
-    new DirigibleDemo.Laptop(gl, flatWhiteProgram);
+    worldObjects.push(new DirigibleDemo.Laptop(gl, flatWhiteProgram));
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
