@@ -15,7 +15,7 @@
 
         var mvStack = [];
 
-        self.setUniforms = function(shaderProgram) {
+        self.setUniforms = function(gl, shaderProgram) {
             gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, self.p);
             gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, self.mv);
         }

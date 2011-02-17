@@ -6,7 +6,7 @@
         }
     });
 
-    function Square(gl) {
+    function Square(gl, shaderProgram) {
         var self = this;
 
         initBuffers();
@@ -26,12 +26,12 @@
         }
 
 
-        self.draw = function(gl, matrices, shaderProgram) {
+        self.draw = function(matrices) {
             matrices.pushMV();
             mat4.translate(matrices.mv, [1.5, 0.0, 0.0]);
             gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, self.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-            matrices.setUniforms(shaderProgram);
+            gl.vertexAttribPointer(shaderProgram.program.vertexPositionAttribute, self.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            matrices.setUniforms(gl, shaderProgram.program);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, self.vertexPositionBuffer.numItems);
             matrices.popMV();
         };

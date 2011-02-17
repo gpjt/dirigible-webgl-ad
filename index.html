@@ -10,6 +10,7 @@
 <script type="text/javascript" src="webgl-utils.js"></script>
 
 <!-- Internal libraries -->
+<script type="text/javascript" src="flat-white-program.js"></script>
 <script type="text/javascript" src="matrices.js"></script>
 <script type="text/javascript" src="square.js"></script>
 <script type="text/javascript" src="triangle.js"></script>
@@ -38,79 +39,7 @@ void main(void) {
 
 <script type="text/javascript">
 
-var gl;
-function initGL(canvas) {
-    gl = WebGLUtils.setupWebGL(canvas);
-    gl.viewportWidth = canvas.width;
-    gl.viewportHeight = canvas.height;
-}
-
-
-function getShader(gl, id) {
-    var shaderScript = document.getElementById(id);
-    if (!shaderScript) {
-        return null;
-    }
-
-    var str = "";
-    var k = shaderScript.firstChild;
-    while (k) {
-        if (k.nodeType == 3) {
-            str += k.textContent;
-        }
-        k = k.nextSibling;
-    }
-
-    var shader;
-    if (shaderScript.type == "x-shader/x-fragment") {
-        shader = gl.createShader(gl.FRAGMENT_SHADER);
-    } else if (shaderScript.type == "x-shader/x-vertex") {
-        shader = gl.createShader(gl.VERTEX_SHADER);
-    } else {
-        return null;
-    }
-
-    gl.shaderSource(shader, str);
-    gl.compileShader(shader);
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(shader));
-        return null;
-    }
-
-    return shader;
-}
-
-
-var shaderProgram;
-function initShaders() {
-    var fragmentShader = getShader(gl, "shader-fs");
-    var vertexShader = getShader(gl, "shader-vs");
-
-    shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
-
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        alert("Could not initialise shaders");
-    }
-
-    gl.useProgram(shaderProgram);
-
-    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-}
-
-
-
-
-var canvas;
-
-function render() {
+function render(gl, canvas, worldObjects) {
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -121,22 +50,29 @@ function render() {
     mat4.translate(matrices.mv, [0.0, 0.0, -7.0]);
 
     for (index in worldObjects) {
-        worldObjects[index].draw(gl, matrices, shaderProgram);
+        worldObjects[index].draw(matrices);
     }
 
-    WebGLUtils.requestAnimationFrame(canvas, render);
+    WebGLUtils.requestAnimationFrame(
+        canvas,
+        function() {
+            render(gl, canvas, worldObjects);
+        }
+    );
 }
 
 
-var worldObjects = [];
-
 function webGLStart() {
-    canvas = document.getElementById("webgl-canvas");
-    initGL(canvas);
-    initShaders();
+    var canvas = document.getElementById("webgl-canvas");
+    var gl = WebGLUtils.setupWebGL(canvas);
+    gl.viewportWidth = canvas.width;
+    gl.viewportHeight = canvas.height;
 
-    worldObjects.push(new DirigibleDemo.Triangle(gl));
-    worldObjects.push(new DirigibleDemo.Square(gl));
+    var flatWhiteProgram = new DirigibleDemo.FlatWhiteProgram(gl);
+
+    var worldObjects = [];
+    worldObjects.push(new DirigibleDemo.Triangle(gl, flatWhiteProgram));
+    worldObjects.push(new DirigibleDemo.Square(gl, flatWhiteProgram));
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -145,7 +81,7 @@ function webGLStart() {
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
 
-    render();
+    render(gl, canvas, worldObjects);
 }
 
 </script>
