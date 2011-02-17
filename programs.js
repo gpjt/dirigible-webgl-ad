@@ -10,7 +10,18 @@
 
 
     function FlatWhite(gl) {
-        return new Program(gl, "flat-white-program.vs", "flat-white-program.fs");
+        return new Program(
+            gl,
+            "flat-white-program.vs",
+            "flat-white-program.fs",
+            {
+                vertexPosition: "aVertexPosition"
+            },
+            {
+                pMatrix: "uPMatrix",
+                mvMatrix: "uMVMatrix"
+            }
+        );
     }
 
 
@@ -36,7 +47,7 @@
     }
 
 
-    function Program(gl, vsURL, fsURL) {
+    function Program(gl, vsURL, fsURL, vertexArrayAttributes, uniforms) {
         var self = this;
 
         var pMatrixUniform;
@@ -62,14 +73,15 @@
                     alert("Could not initialise shaders");
                 }
 
-                self.attributes = {
-                    vertexPosition: gl.getAttribLocation(program, "aVertexPosition")
-                };
-                gl.enableVertexAttribArray(self.attributes.vertexPosition);
+                self.attributes = {}
+                for (attribute in vertexArrayAttributes) {
+                    self.attributes[attribute] = gl.getAttribLocation(program, vertexArrayAttributes[attribute]);
+                    gl.enableVertexAttribArray(self.attributes[attribute]);
+                }
 
-                self.uniforms = {
-                    pMatrix: gl.getUniformLocation(program, "uPMatrix"),
-                    mvMatrix: gl.getUniformLocation(program, "uMVMatrix")
+                self.uniforms = {}
+                for (uniform in uniforms) {
+                    self.uniforms[uniform] = gl.getUniformLocation(program, uniforms[uniform]);
                 }
 
                 self.program = program;
