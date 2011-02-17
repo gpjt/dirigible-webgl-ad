@@ -15,27 +15,78 @@
         initShaders();
 
         function initShaders() {
-            var fragmentShader = getShader(gl, "shader-fs");
-            var vertexShader = getShader(gl, "shader-vs");
+            var vertexShader;
+            function loadVertexShader(data) {
+                var shader = gl.createShader(gl.VERTEX_SHADER);
 
-            var program = gl.createProgram();
-            gl.attachShader(program, vertexShader);
-            gl.attachShader(program, fragmentShader);
-            gl.linkProgram(program);
+                gl.shaderSource(shader, data.responseText);
+                gl.compileShader(shader);
 
-            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                alert("Could not initialise shaders");
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    alert(gl.getShaderInfoLog(shader));
+                    return;
+                }
+
+                vertexShader = shader;
+                linkProgramIfPossible();
             }
+            $.ajax({
+                url: "flat-white-program.vs",
+                dataType: "text",
+                statusCode: {
+                    200: loadVertexShader,
+                    0: loadVertexShader
+                }
+            });
 
-            self.attributes = {
-                vertexPosition: gl.getAttribLocation(program, "aVertexPosition")
-            };
-            gl.enableVertexAttribArray(self.attributes.vertexPosition);
+            var fragmentShader;
+            function loadFragmentShader(data) {
+                var shader = gl.createShader(gl.FRAGMENT_SHADER);
 
-            pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
-            mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
+                gl.shaderSource(shader, data.responseText);
+                gl.compileShader(shader);
 
-            self.program = program;
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    alert(gl.getShaderInfoLog(shader));
+                    return;
+                }
+
+                fragmentShader = shader;
+                linkProgramIfPossible();
+            }
+            $.ajax({
+                url: "flat-white-program.fs",
+                dataType: "text",
+                statusCode: {
+                    200: loadFragmentShader,
+                    0: loadFragmentShader
+                }
+            });
+
+            function linkProgramIfPossible() {
+                if (!vertexShader || !fragmentShader) {
+                    return;
+                }
+
+                var program = gl.createProgram();
+                gl.attachShader(program, vertexShader);
+                gl.attachShader(program, fragmentShader);
+                gl.linkProgram(program);
+
+                if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                    alert("Could not initialise shaders");
+                }
+
+                self.attributes = {
+                    vertexPosition: gl.getAttribLocation(program, "aVertexPosition")
+                };
+                gl.enableVertexAttribArray(self.attributes.vertexPosition);
+
+                pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
+                mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
+
+                self.program = program;
+            }
         }
 
 
