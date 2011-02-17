@@ -67,8 +67,10 @@
                 };
                 gl.enableVertexAttribArray(self.attributes.vertexPosition);
 
-                pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
-                mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
+                self.uniforms = {
+                    pMatrix: gl.getUniformLocation(program, "uPMatrix"),
+                    mvMatrix: gl.getUniformLocation(program, "uMVMatrix")
+                }
 
                 self.program = program;
             }
@@ -76,8 +78,8 @@
 
 
         self.setMatrices = function(matrices) {
-            gl.uniformMatrix4fv(pMatrixUniform, false, matrices.p);
-            gl.uniformMatrix4fv(mvMatrixUniform, false, matrices.mv);
+            gl.uniformMatrix4fv(self.uniforms.pMatrix, false, matrices.p);
+            gl.uniformMatrix4fv(self.uniforms.mvMatrix, false, matrices.mv);
         };
 
     }
