@@ -12,7 +12,15 @@
 
         init();
 
+
         function init() {
+            initScreenVertices();
+            initLaptopBodyVertices();
+            initScreenshotTexture();
+        }
+
+
+        function initScreenVertices() {
             self.screenVertexPositionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, self.screenVertexPositionBuffer);
             vertices = [
@@ -48,36 +56,61 @@
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
             self.screenVertexTextureCoordBuffer.itemSize = 2;
             self.screenVertexTextureCoordBuffer.numItems = 4;
+        }
 
+
+        function initScreenshotTexture() {
+            var screenshotImage = new Image();
+            screenshotImage.onload = function() {
+                handleLoadedTexture();
+            }
+            screenshotImage.src = "screenshot.gif";
+
+            function handleLoadedTexture() {
+                self.screenshotTexture = gl.createTexture();
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+                gl.bindTexture(gl.TEXTURE_2D, self.screenshotTexture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, screenshotImage);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+                gl.generateMipmap(gl.TEXTURE_2D);
+
+                gl.bindTexture(gl.TEXTURE_2D, null);
+            }
+        }
+
+
+        function initLaptopBodyVertices() {
             DirigibleDemo.AjaxUtils.FileSystemSafeGet("laptop.json", "json", handleLoadedVertices);
+
+            function handleLoadedVertices(data) {
+                self.vertexNormalBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexNormalBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertexNormals), gl.STATIC_DRAW);
+                self.vertexNormalBuffer.itemSize = 3;
+                self.vertexNormalBuffer.numItems = data.vertexNormals.length / 3;
+
+                self.vertexTextureCoordBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexTextureCoordBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertexTextureCoords), gl.STATIC_DRAW);
+                self.vertexTextureCoordBuffer.itemSize = 2;
+                self.vertexTextureCoordBuffer.numItems = data.vertexTextureCoords.length / 2;
+
+                self.vertexPositionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertexPositions), gl.STATIC_DRAW);
+                self.vertexPositionBuffer.itemSize = 3;
+                self.vertexPositionBuffer.numItems = data.vertexPositions.length / 3;
+
+                self.vertexIndexBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.vertexIndexBuffer);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.indices), gl.STREAM_DRAW);
+                self.vertexIndexBuffer.itemSize = 1;
+                self.vertexIndexBuffer.numItems = data.indices.length;
+            }
         }
 
-
-        function handleLoadedVertices(data) {
-            self.vertexNormalBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexNormalBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertexNormals), gl.STATIC_DRAW);
-            self.vertexNormalBuffer.itemSize = 3;
-            self.vertexNormalBuffer.numItems = data.vertexNormals.length / 3;
-
-            self.vertexTextureCoordBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexTextureCoordBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertexTextureCoords), gl.STATIC_DRAW);
-            self.vertexTextureCoordBuffer.itemSize = 2;
-            self.vertexTextureCoordBuffer.numItems = data.vertexTextureCoords.length / 2;
-
-            self.vertexPositionBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, self.vertexPositionBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.vertexPositions), gl.STATIC_DRAW);
-            self.vertexPositionBuffer.itemSize = 3;
-            self.vertexPositionBuffer.numItems = data.vertexPositions.length / 3;
-
-            self.vertexIndexBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.vertexIndexBuffer);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.indices), gl.STREAM_DRAW);
-            self.vertexIndexBuffer.itemSize = 1;
-            self.vertexIndexBuffer.numItems = data.indices.length;
-        }
 
 
         self.draw = function(matrices) {
@@ -147,8 +180,11 @@
                 gl.vertexAttribPointer(shaderProgram.attributes.textureCoord, self.screenVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
             }
 
-            gl.activeTexture(gl.TEXTURE0);
-            gl.uniform1i(shaderProgram.samplerUniform, 0);
+            if ('samplerUniform' in shaderProgram && self.screenshotTexture) {
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, self.screenshotTexture);
+                gl.uniform1i(shaderProgram.samplerUniform, 0);
+            }
 
             shaderProgram.setMatrices(matrices);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, self.screenVertexPositionBuffer.numItems);
